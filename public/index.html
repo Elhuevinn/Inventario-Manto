@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha Técnica</title>
+    <!-- Firebase App -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <!-- Firebase Firestore -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app" class="container">
+        <h1>Cargando información del equipo...</h1>
+    </div>
+    <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCQbIPpTUa-8awX021ltaXJqqsZSqia5FM",
+            authDomain: "inventario-manto-a648e.firebaseapp.com",
+            projectId: "inventario-manto-a648e",
+            storageBucket: "inventario-manto-a648e.firebasestorage.app",
+            messagingSenderId: "306722298300",
+            appId: "1:306722298300:web:14f9713f90520fcd39f3b9",
+            measurementId: "G-JTLXTQM3FV"
+            };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Obtener el ID del equipo desde la URL
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id');
+
+        async function mostrarEquipo() {
+            if (!id) {
+                document.getElementById('app').innerHTML = '<h1>ID de equipo no proporcionado</h1>';
+                return;
+            }
+
+            try {
+                const docRef = db.collection('equipos').doc(id);
+                const docSnap = await docRef.get();
+
+                if (docSnap.exists) {
+                    const data = docSnap.data();
+                    document.getElementById('app').innerHTML = `
+                        <div class="ficha">
+                            <h1 class="title">Ficha Técnica</h1>
+                            <div class="section">
+                                <h2>Datos Generales</h2>
+                                <div class="row">
+                                    <p><strong>Realizado por:</strong> ${data.realizadoPor || 'N/A'}</p>
+                                    <p><strong>Fecha:</strong> ${data.fecha || 'N/A'}</p>
+                                </div>
+                            </div>
+                            <div class="section">
+                                <h2>Identificación</h2>
+                                <div class="row">
+                                    <p><strong>Máquina/Equipo:</strong> ${data.maquinaEquipo || 'N/A'}</p>
+                                    <p><strong>Fabricante:</strong> ${data.fabricante || 'N/A'}</p>
+                                </div>
+                                <div class="row">
+                                    <p><strong>Modelo:</strong> ${data.modelo || 'N/A'}</p>
+                                    <p><strong>Marca:</strong> ${data.marca || 'N/A'}</p>
+                                    <p><strong>Código de Inventario:</strong> ${data.codigoInventario || 'N/A'}</p>
+                                </div>
+                            </div>
+                            <div class="section">
+                                <h2>Ubicación</h2>
+                                <div class="row">
+                                    <p><strong>Ubicación:</strong> ${data.ubicacion || 'N/A'}</p>
+                                    <p><strong>Sección:</strong> ${data.seccion || 'N/A'}</p>
+                                </div>
+                            </div>
+                            <div class="section">
+                                <h2>Características Generales</h2>
+                                <div class="row">
+                                    <p><strong>Peso:</strong> ${data.peso || 'N/A'}</p>
+                                    <p><strong>Altura:</strong> ${data.altura || 'N/A'}</p>
+                                    <p><strong>Largo:</strong> ${data.largo || 'N/A'}</p>
+                                    <p><strong>Ancho:</strong> ${data.ancho || 'N/A'}</p>
+                                </div>
+                            </div>
+                            <div class="section">
+                                <h2>Características Técnicas</h2>
+                                <div class="row">
+                                    <p><strong>Potencia:</strong> ${data.potencia || 'N/A'}</p>
+                                    <p><strong>Voltaje:</strong> ${data.voltaje || 'N/A'}</p>
+                                    <p><strong>Amperaje:</strong> ${data.amperaje || 'N/A'}</p>
+                                </div>
+                                <div class="row">
+                                    <p><strong>RPM:</strong> ${data.rpm || 'N/A'}</p>
+                                    <p><strong>Presión:</strong> ${data.presion || 'N/A'}</p>
+                                </div>
+                                <div class="row">
+                                    <p><strong>¿Tiene enfriador?</strong> ${data.enfriadorHabilitado ? 'Sí' : 'No'}</p>
+                                    ${data.enfriadorHabilitado ? `<p><strong>Detalles del enfriador:</strong> ${data.enfriador || 'N/A'}</p>` : ''}
+                                    <p><strong>¿Tiene calentador?</strong> ${data.calentadorHabilitado ? 'Sí' : 'No'}</p>
+                                    ${data.calentadorHabilitado ? `<p><strong>Detalles del calentador:</strong> ${data.calentador || 'N/A'}</p>` : ''}
+                                </div>
+                            </div>
+                            <div class="section">
+                                <h2>Otros Detalles</h2>
+                                <p><strong>Partes:</strong> ${data.partes || 'N/A'}</p>
+                                <p><strong>Otros:</strong> ${data.otros || 'N/A'}</p>
+                                <p><strong>Función:</strong> ${data.funcion || 'N/A'}</p>
+                            </div>
+                            ${data.imagen ? `
+                                <div class="section">
+                                    <h2>Imagen</h2>
+                                    <img src="${data.imagen}" alt="Imagen del equipo" class="image">
+                                </div>` : ''}
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('app').innerHTML = '<h1>No se encontró información para este equipo</h1>';
+                }
+            } catch (error) {
+                console.error('Error al obtener el documento:', error);
+                document.getElementById('app').innerHTML = '<h1>Error al cargar los datos del equipo</h1>';
+            }
+        }
+
+        mostrarEquipo();
+    </script>
+</body>
+</html>
